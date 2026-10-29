@@ -232,4 +232,3 @@ the first host: its side is in Froggy's `docs/ARCHITECTURE.md`, Bufo.
 
 - How bait reaches a bait-only machine, and the trace it leaves (Protecting
   Bufo, Local only).
-- The license, and when to publish.
