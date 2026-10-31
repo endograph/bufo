@@ -780,6 +780,16 @@ step stands on its own; the repository is in brackets.
    identity, which the owner places for now. TLS names no connection to the
    selection block, so Core puts an offered decoy to the one handshake under
    way, or, of several, to the first that TLS then fails.
+   Drilled 2026-10-31 with the second watcher's Commander and Core pinned
+   as hosts: Commander took the alarms waiting for it within its five
+   minutes of finding Bufo unset, and pushed the ones under a day old; a
+   trip on the first watcher reached the owner's phone through it, its
+   stage accepted and delivery health up. The owner minted a decoy link;
+   offered from another Mac, Core declined it as TLS declines any unknown
+   identity, and Bufo opened a host-credential incident from that Mac's
+   address under Core's name, which reached the phone as well. Core is
+   pinned only to register and report, so the updates it never follows
+   pile up for it; step 9 settles whether a host can be pinned not to.
 9. **Drills and docs** [bufo]: README describes what ships; ARCHITECTURE
    records the decisions. Drills: a trip, repeats, a silence, a rotation,
    the second watcher cold-booted with no one logged in, the first
