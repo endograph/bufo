@@ -16,14 +16,14 @@ plants is secret.
 
 ## Rules
 
-- **This repository is public.** Never commit a placement, a seed, key
+- **This repository is public.** Never commit a placement, key
   material, the owner's machine or network names, or anything about a real
   install. Describe how decoys imitate, never what one became. Deployment
   details belong to the host that uses Bufo (Froggy), not here.
 - **No tells in the code.** Nothing in the code may make a decoy
   recognizable: no fixed names, pools, paths, ports, token shapes, or
-  markers. Placements come from the machine's surroundings and the owner's
-  private seed.
+  markers. Placements come from the machine's surroundings and randomness
+  each watcher makes and keeps.
 - **Standalone.** Bufo imports no host's code and calls no host's services.
   A host (Froggy first) links Bufo's contract and uses Bufo when present;
   Bufo works without one.
