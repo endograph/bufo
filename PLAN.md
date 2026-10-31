@@ -773,7 +773,13 @@ step stands on its own; the repository is in brackets.
    revision, and it ended with nothing unacked.
 8. **Froggy** [froggy; the owner schedules it]. Exit: a trip on the first
    watcher reaches the second watcher's Commander as an alarm; presenting
-   the decoy PSK identity to a watcher's Core opens an incident.
+   the decoy PSK identity to a watcher's Core opens an incident. Built
+   2026-10-30: Bufo's side is delivery health (Delivery health, above);
+   Froggy's is recorded in its own ARCHITECTURE, Bufo. Its decoy is a
+   pairing link, since a stolen real pairing presents its thief's own
+   identity, which the owner places for now. TLS names no connection to the
+   selection block, so Core puts an offered decoy to the one handshake under
+   way, or, of several, to the first that TLS then fails.
 9. **Drills and docs** [bufo]: README describes what ships; ARCHITECTURE
    records the decisions. Drills: a trip, repeats, a silence, a rotation,
    the second watcher cold-booted with no one logged in, the first
