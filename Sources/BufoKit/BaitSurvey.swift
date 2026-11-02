@@ -122,9 +122,15 @@ struct BaitSurvey: Equatable {
         done
         for k in \#(quoted); do known "$k"; done
         if [ -f known_hosts ]; then r knownhosts "$(grep -c '' known_hosts)" "$(grep -c '^|1|' known_hosts)"; fi
+        # An agent that doesn't answer in 5 seconds can't offer a key, nor have taken the decoy.
+        agentkeys() {
+          SSH_AUTH_SOCK=$1 ssh-add -L & p=$!
+          { sleep 5; kill $p; } >/dev/null & w=$!
+          wait $p; kill $w
+        }
         for s in "${SSH_AUTH_SOCK:-}" "$(launchctl getenv SSH_AUTH_SOCK 2>/dev/null)" agent/*; do
           [ -S "$s" ] || continue
-          r agent "$(SSH_AUTH_SOCK=$s ssh-add -L 2>/dev/null | head -n 64)"
+          r agent "$(agentkeys "$s" | head -n 64)"
         done
         r accounts "$(dscl . -list /Users UniqueID 2>/dev/null | awk '$2 >= 501 { print $1 }' | head -n 64)"
         r end

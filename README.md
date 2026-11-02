@@ -69,7 +69,9 @@ Every command prints one JSON object, or `{"error": …}` and exits nonzero.
   format, name, comment, modes and times; a real entry's options, case,
   and indentation; a `known_hosts` line if the real entries have them),
   arms the decoy's account on the detector, writes the files, and checks
-  that `ssh -G` resolves the entry and nothing else would offer the key.
+  that `ssh -G` resolves the entry and nothing else would offer the key
+  (an agent on the laptop that doesn't answer within 5 seconds holds
+  nothing).
   It refuses a laptop it can't imitate: fewer than two private keys, every
   key with a passphrase, keys all named as OpenSSH's defaults, an
   `IdentityFile` that varies by destination, no `Host` entry with a `User`

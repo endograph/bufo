@@ -59,10 +59,11 @@ enum System {
         process.standardInput = FileHandle.nullDevice
         let output = Output()
         guard (try? process.run()) != nil else { return (-1, Data()) }
-        DispatchQueue.global().async {
+        // Its own thread: on a shared queue, callers blocked below could starve the read.
+        Thread {
             output.data = pipe.fileHandleForReading.readDataToEndOfFile()
             output.done.signal()
-        }
+        }.start()
         guard output.done.wait(timeout: .now() + timeout) == .success else {
             kill(process.processIdentifier, SIGKILL)
             return (-1, Data())

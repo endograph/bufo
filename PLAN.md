@@ -787,9 +787,10 @@ step stands on its own; the repository is in brackets.
    stage accepted and delivery health up. The owner minted a decoy link;
    offered from another Mac, Core declined it as TLS declines any unknown
    identity, and Bufo opened a host-credential incident from that Mac's
-   address under Core's name, which reached the phone as well. Core is
-   pinned only to register and report, so the updates it never follows
-   pile up for it; step 9 settles whether a host can be pinned not to.
+   address under Core's name, which reached the phone as well. Core only
+   registers and reports, so its cursor never moves and status shows every
+   update as unacked for it; that costs nothing, since the ledger keeps the
+   same bounded entries whoever has taken them.
 9. **Drills and docs** [bufo]: README describes what ships; ARCHITECTURE
    records the decisions. Drills: a trip, repeats, a silence, a rotation,
    the second watcher cold-booted with no one logged in, the first

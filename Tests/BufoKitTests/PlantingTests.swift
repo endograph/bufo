@@ -130,6 +130,28 @@ struct PlantingTests {
         #expect(survey.knownLines == 2)
     }
 
+    /// An agent socket that takes connections and never answers, as a bait
+    /// laptop's own agent was found doing.
+    @Test(.timeLimit(.minutes(1))) func anAgentThatNeverAnswersHoldsNothing() throws {
+        let path = "/tmp/bufo-\(UUID().uuidString.prefix(8))"
+        let fd = socket(AF_UNIX, SOCK_STREAM, 0)
+        defer { close(fd); unlink(path) }
+        var address = sockaddr_un()
+        address.sun_family = sa_family_t(AF_UNIX)
+        withUnsafeMutableBytes(of: &address.sun_path) { $0.copyBytes(from: path.utf8) }
+        let bound = withUnsafePointer(to: &address) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { bind(fd, $0, socklen_t(MemoryLayout<sockaddr_un>.size)) }
+        }
+        #expect(bound == 0 && listen(fd, 4) == 0)
+        try FileManager.default.createDirectory(atPath: home + "/.ssh/agent", withIntermediateDirectories: true)
+        try FileManager.default.createSymbolicLink(atPath: home + "/.ssh/agent/s", withDestinationPath: path)
+        let started = Date()
+        // The survey also asks the agent launchd names, so this Mac's own may answer.
+        let survey = try survey()
+        #expect(Date().timeIntervalSince(started) < 15)
+        #expect(survey.keys.count == 2)
+    }
+
     @Test func aDecoyIsPlantedVerifiedRepeatedAndTakenOffAgain() throws {
         let before = try survey()
         var random = Seeded(state: 7)
