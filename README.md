@@ -1,3 +1,5 @@
+<p align="center"><img src="logo.svg" width="128" alt=""></p>
+
 # Bufo
 
 Bufo watches your own computers for untrusted use. It plants decoys, things
