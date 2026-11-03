@@ -1,24 +1,108 @@
-<p align="center"><img src="favicon.svg" width="128" alt=""></p>
+<p align="center">
+  <img src="favicon.svg" alt="bufo" width="128" />
+</p>
 
-# Bufo
+<p align="center">
+  <a href="#quickstart">Quickstart</a> ·
+  <a href="#commands">Commands</a> ·
+  <a href="ARCHITECTURE.md">Architecture</a> ·
+  <a href="PLAN.md">Plan</a>
+</p>
 
-Bufo watches your own computers for untrusted use. It plants decoys, things
-an intruder would want and you never touch, and watches for them being used
-from a different machine than the one they sit on.
+# bufo
+
+Bufo is a tripwire for your own computers. It plants decoys, things an
+intruder would want and you never touch, and raises the alarm from a
+different machine than the one they sit on.
+
+```text
+bait laptop            first watcher           second watcher
+  ~/.ssh  --decoy used-->  sshd's log  --alarm-->  peer  --> your phone
+  (runs nothing)          (detects)               (watches the first)
+```
+
+Anything running on a machine an intruder holds, the intruder can stop. So
+the bait laptop runs nothing of Bufo, and the watchers that notice a trip
+are machines the intruder doesn't hold. They watch each other too: a
+watcher that goes quiet is an alarm of its own.
+
+- **Nothing on the bait.** Bufo plants over SSH and leaves only the decoy,
+  made to look like what is already there; the laptop runs nothing of
+  Bufo's.
+- **Decoys that look lived in.** Each decoy is copied from the laptop's own
+  keys and entries: their names, comments, modes, and times. No name, path,
+  or shape comes from the code, so the code can't give one away.
+- **Alarms from elsewhere.** A decoy trips on another machine, which reads
+  it in sshd's own log, so wiping the laptop doesn't hide the trip.
+- **Watchers watch each other.** Peers trade incidents, alarms, and health
+  over TLS. A peer that goes silent, loses coverage, or stops delivering is
+  an alarm, and so is its recovery.
+- **Root-only, agent-free.** Each watcher keeps its state where only root
+  can read it. No output names a decoy, and no agent or MCP tool reads or
+  changes Bufo.
+- **Standalone.** Bufo works on its own. A host app links its contract to
+  deliver alarms and plant decoys of its own; Froggy is the first.
 
 Bufo catches use inside your own network. A credential copied off a machine
 and used somewhere else never reaches it; canarytokens (canarytokens.org,
 or self-hosted) catches that, and Bufo is meant to run alongside it.
 
-Bufo installs as a daemon that watches for SSH decoys, plants them on a
-bait laptop over SSH, and trades alarms with other watchers. The design is
-in `ARCHITECTURE.md` and the work in `PLAN.md`. `make test` runs the tests; `make build` builds a signed `bufo`.
+Bufo is pre-release: Milestone 1 is being drilled (`PLAN.md`), and there
+are no published builds. You build it yourself, signed as you.
+
+## Quickstart
+
+You need two Macs to watch (macOS 15 or later, on one tailnet), a bait
+laptop they can reach over SSH, and a Swift toolchain with an Apple
+Development identity in the keychain.
+
+```sh
+make test
+make build        # signed, in .build/bufo-signed/bufo
+```
 
 Before running a `bufo` you fetched with `sudo`, check it yourself; nothing
 on the machine can do that for you: `codesign --verify --strict bufo`, then
 `codesign -dv bufo` for the team and identifier you expect.
 
+Install on both watchers. Bufo has no names of its own: choose a path,
+label, and service that suit each machine.
+
+```sh
+sudo .build/bufo-signed/bufo install --binary <path> --state <directory> \
+  --label <label> --service <name>
+```
+
+On the first watcher, which detects, listen and pin the second. It prints a
+pairing code once:
+
+```sh
+sudo <installed binary> listen <its tailnet address> <port>
+sudo <installed binary> peer add <second's tailnet address> --may-plant
+```
+
+On the second watcher, pin the first and type that code:
+
+```sh
+sudo <installed binary> peer add <first's tailnet address> --port <port> --code
+```
+
+Give the first watcher's installed binary Full Disk Access (below, under
+`arm`). Then, from the second watcher, as the account that reaches the
+laptop over SSH, plant:
+
+```sh
+sudo <installed binary> plant ssh-key --bait <you@laptop> --detector <first's tailnet address>
+```
+
+`status` on either watcher shows the decoy armed, coverage, and the peer.
+To hear alarms on your phone, pin a host such as Froggy with `host add`.
+
+## Commands
+
 Every command prints one JSON object, or `{"error": …}` and exits nonzero.
+
+### Install
 
 - `sudo bufo install --binary <path> --state <directory> --label <label>
   --service <name>` installs this build as a LaunchDaemon. You choose every
@@ -33,6 +117,12 @@ Every command prints one JSON object, or `{"error": …}` and exits nonzero.
 - `sudo <installed binary> update <artifact>` replaces the installed build
   with a newer one of the same team and identifier, and puts the old one
   back if the new one doesn't answer.
+- `sudo <installed binary> uninstall` stops the job, retires every decoy,
+  and removes every file install and arming made. It doesn't reach bait
+  laptops: unplant first.
+
+### Decoys
+
 - `sudo <installed binary> arm <account> <public key file>` arms an SSH
   decoy on this watcher: a new hidden account with no password and
   `/usr/bin/false` for a shell, outside Remote Login's access group, whose
@@ -49,6 +139,9 @@ Every command prints one JSON object, or `{"error": …}` and exits nonzero.
   binary's folder, then the binary), and `status` notes when it's missing.
 - `sudo <installed binary> retire <account>` removes a decoy's account; its
   incidents stay open. Retiring the last one removes sshd's file too.
+
+### Watchers
+
 - `sudo <installed binary> listen <tailnet address> <port>` has this
   watcher listen for peer watchers there.
 - `sudo <installed binary> peer add <tailnet address> [--port <port>]
@@ -60,6 +153,9 @@ Every command prints one JSON object, or `{"error": …}` and exits nonzero.
   and so is its recovery. `--may-plant` lets that peer arm up to the same
   4 decoys here and retire the ones it armed, nothing else.
   `peer remove <tailnet address>` unpins it.
+
+### Planting
+
 - `sudo <installed binary> plant ssh-key --bait <[user@]host> --detector
   <tailnet address>` plants an SSH decoy on a bait laptop, a Mac that runs
   nothing of Bufo, detected by this watcher (its listening address) or by
@@ -85,6 +181,9 @@ Every command prints one JSON object, or `{"error": …}` and exits nonzero.
   if one is interrupted (the laptop or the detector unreachable, a crash),
   `sudo <installed binary> resume` carries on. A decoy that fails its
   check is removed again. Removal takes off only what is still as written.
+
+### Hosts
+
 - `sudo <installed binary> host add <name> --requirement <code
   requirement> --user <account>` pins an app on this Mac as a host: only
   that app, signed as the requirement says and run as that account, may
@@ -100,6 +199,9 @@ Every command prints one JSON object, or `{"error": …}` and exits nonzero.
   minutes and its last reported stage isn't a failure; when no such host
   is delivering, the watcher's peers alarm through their own hosts, and
   again when one is.
+
+### Status
+
 - `status` shows whether decoys are armed, coverage (`full`, `degraded`
   with a note saying why, or `off`), the last self-test (a throwaway key
   offered to sshd every few hours for one of macOS's own service accounts,
@@ -109,8 +211,13 @@ Every command prints one JSON object, or `{"error": …}` and exits nonzero.
   has planted, and each host: last heard, last ack, what it hasn't acked,
   and the last delivery stage it reported, and whether the hosts that
   take updates are delivering. No output names a decoy.
-- `sudo <installed binary> uninstall` stops the job, retires every decoy,
-  and removes every file install and arming made. It doesn't reach bait
-  laptops: unplant first.
+
+## Learn more
+
+- [Architecture](ARCHITECTURE.md) — the design and its decisions: roles,
+  decoy kinds, what a trip is, protecting Bufo, and hosts
+- [Plan](PLAN.md) — the work, milestone by milestone, and what each drill
+  found
+- [Agents](AGENTS.md) — the rules for working in this public repository
 
 MIT licensed; see `LICENSE`.
