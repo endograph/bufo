@@ -1,4 +1,4 @@
-<p align="center"><img src="logo.svg" width="128" alt=""></p>
+<p align="center"><img src="favicon.svg" width="128" alt=""></p>
 
 # Bufo
 
